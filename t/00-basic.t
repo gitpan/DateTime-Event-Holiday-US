@@ -58,19 +58,18 @@ my %expected = (
 );
 
 my $year_start = DateTime->new( 'year' => $year, 'month' => 1, 'day' => 1 );
-my $year_end   = DateTime->new( 'year' => $year, 'month' => 12, 'day' => 31, 'hour' => 23, 'minute' => 59, 'second' => 59 );
-my $year_span  = DateTime::Span->from_datetimes( 'start' => $year_start, 'end' => $year_end );
+my $year_end = DateTime->new( 'year' => $year, 'month' => 12, 'day' => 31, 'hour' => 23, 'minute' => 59, 'second' => 59 );
+my $year_span = DateTime::Span->from_datetimes( 'start' => $year_start, 'end' => $year_end );
 
 my @expected = sort keys %expected;
 my @known    = DateTime::Event::Holiday::US::known();
 my $group    = DateTime::Event::Holiday::US::holidays( @known );
 my $set      = DateTime::Event::Holiday::US::holidays_as_set( @known );
 
-diag( "Building list of holidays.  This will take a long time.");
-my @set      = $set->as_list( 'span' => $year_span );
+diag( "Building list of holidays.  This will take a long time." );
+my @set = $set->as_list( 'span' => $year_span );
 
-my %set; $set{ $_->ymd } = $_->ymd
-  for @set;
+my %set; $set{ $_->ymd } = $_->ymd for @set;
 
 my %check = %set;
 
@@ -83,25 +82,25 @@ for my $expected_name ( @expected ) {
 
   my $expected_date = $expected{ $expected_name };
 
-  my $object     = DateTime::Event::Holiday::US::holiday( $expected_name );
-  my $known_date = $object->next( $year_start->clone->subtract( 'days' => 1) )->ymd;
+  my $object = DateTime::Event::Holiday::US::holiday( $expected_name );
+  my $known_date = $object->next( $year_start->clone->subtract( 'days' => 1 ) )->ymd;
 
   my $set_date = $set{ $expected_date } || "No set date for $expected_name";
 
   delete $check{ $expected_date }
     if exists $check{ $expected_date };
 
-  cmp_ok( ref $object, 'eq', 'DateTime::Set::ICal',       'object is DateTime::Set::ICal'  );
+  cmp_ok( ref $object, 'eq', 'DateTime::Set::ICal',       'object is DateTime::Set::ICal' );
   cmp_ok( $known_date, 'eq', $expected{ $expected_name }, 'known and expected dates match' );
 
   $object = $group->{ $expected_name };
-  $known_date = $object->next( $year_start->clone->subtract( 'days' => 1) )->ymd;
+  $known_date = $object->next( $year_start->clone->subtract( 'days' => 1 ) )->ymd;
 
-  cmp_ok( ref $object, 'eq', 'DateTime::Set::ICal', 'object is DateTime::Set::ICal'  );
+  cmp_ok( ref $object, 'eq', 'DateTime::Set::ICal', 'object is DateTime::Set::ICal' );
   cmp_ok( $known_date, 'eq', $expected_date,        'known and expected dates match' );
-  cmp_ok( $set_date,   'eq', $expected_date,        'set and expected dates match'   );
+  cmp_ok( $set_date,   'eq', $expected_date,        'set and expected dates match' );
 
-}
+} ## end for my $expected_name...
 
 my $check = join ' ', keys %check;
 
@@ -109,4 +108,6 @@ cmp_ok( $check, 'eq', '', 'Nothing left in set hash' );
 
 done_testing();
 
-sub uniq { my %h; map { $h{ $_ }++ == 0 ? $_ : () } @_ }
+sub uniq {
+  my %h; map { $h{ $_ }++ == 0 ? $_ : () } @_;
+}
